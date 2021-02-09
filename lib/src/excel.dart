@@ -33,7 +33,7 @@ class Excel {
   List<String> _sharedStrings, _patternFill, _mergeChangeLook, _rtlChangeLook;
   List<_FontStyle> _fontStyleList;
   List<int> _numFormats;
-  String _stylesTarget, _sharedStringsTarget, _defaultSheet;
+  String? _stylesTarget, _sharedStringsTarget, _defaultSheet;
   Parser parser;
 
   Excel._(Archive archive) {
@@ -88,7 +88,7 @@ class Excel {
   ///
   Sheet operator [](String sheet) {
     _availSheet(sheet);
-    return _sheetMap[sheet];
+    return _sheetMap[sheet]!;
   }
 
   ///
@@ -122,11 +122,11 @@ class Excel {
     if (_isContain(_sheetMap[existingSheetObject.sheetName])) {
       _availSheet(sheet1);
 
-      _sheetMap[sheet1] = _sheetMap[existingSheetObject.sheetName];
+      _sheetMap[sheet1] = _sheetMap[existingSheetObject.sheetName]!;
 
       if (_isContain(_cellStyleReferenced[existingSheetObject.sheetName])) {
         _cellStyleReferenced[sheet1] = Map<String, int>.from(
-            _cellStyleReferenced[existingSheetObject.sheetName]);
+            _cellStyleReferenced[existingSheetObject.sheetName]!);
       }
     }
   }
@@ -155,7 +155,7 @@ class Excel {
     }
     if (_isContain(_cellStyleReferenced[fromSheet])) {
       _cellStyleReferenced[toSheet] =
-          Map<String, int>.from(_cellStyleReferenced[fromSheet]);
+          Map<String, int>.from(_cellStyleReferenced[fromSheet]!);
     }
   }
 
@@ -223,9 +223,9 @@ class Excel {
     if (_isContain(_xmlSheetId[sheet])) {
       String sheetId1 = "worksheets" +
               _xmlSheetId[sheet].toString().split('worksheets')[1].toString(),
-          sheetId2 = _xmlSheetId[sheet];
+          sheetId2 = _xmlSheetId[sheet]!;
 
-      _xmlFiles['xl/_rels/workbook.xml.rels']
+      _xmlFiles['xl/_rels/workbook.xml.rels']!
           .rootElement
           .children
           .removeWhere((_sheetName) {
@@ -233,7 +233,7 @@ class Excel {
             _sheetName.getAttribute('Target').toString() == sheetId1;
       });
 
-      _xmlFiles['[Content_Types].xml']
+      _xmlFiles['[Content_Types].xml']!
           .rootElement
           .children
           .removeWhere((_sheetName) {
@@ -263,7 +263,7 @@ class Excel {
       ///
       /// Remove from `xl/workbook.xml`
       ///
-      _xmlFiles['xl/workbook.xml']
+      _xmlFiles['xl/workbook.xml']!
           .findAllElements('sheets')
           .first
           .children
@@ -306,19 +306,19 @@ class Excel {
   ///
   Future<String> getDefaultSheet() async {
     if (_defaultSheet != null) {
-      return _defaultSheet;
+      return _defaultSheet!;
     } else {
-      String re = await _getDefaultSheet();
-      return re;
+      String? re = await _getDefaultSheet();
+      return re!;
     }
   }
 
   ///
   ///Internal function which returns the defaultSheet-Name by reading from `workbook.xml`
   ///
-  Future<String> _getDefaultSheet() async {
+  Future<String?> _getDefaultSheet() async {
     XmlElement _sheet =
-        _xmlFiles['xl/workbook.xml'].findAllElements('sheet').first;
+        _xmlFiles['xl/workbook.xml']!.findAllElements('sheet').first;
 
     if (_sheet != null) {
       var defaultSheet = _sheet.getAttribute('name');
@@ -355,7 +355,7 @@ class Excel {
       return;
     }
     _availSheet(sheet);
-    _sheetMap[sheet].insertColumn(columnIndex);
+    _sheetMap[sheet]!.insertColumn(columnIndex);
   }
 
   ///
@@ -365,7 +365,7 @@ class Excel {
     if (columnIndex != null &&
         columnIndex >= 0 &&
         _isContain(_sheetMap[sheet])) {
-      _sheetMap[sheet].removeColumn(columnIndex);
+      _sheetMap[sheet]!.removeColumn(columnIndex);
     }
   }
 
@@ -381,7 +381,7 @@ class Excel {
       return;
     }
     _availSheet(sheet);
-    _sheetMap[sheet].insertRow(rowIndex);
+    _sheetMap[sheet]!.insertRow(rowIndex);
   }
 
   ///
@@ -389,7 +389,7 @@ class Excel {
   ///
   void removeRow(String sheet, int rowIndex) {
     if (rowIndex != null && rowIndex >= 0 && _isContain(_sheetMap[sheet])) {
-      _sheetMap[sheet].removeRow(rowIndex);
+      _sheetMap[sheet]!.removeRow(rowIndex);
     }
   }
 
@@ -403,7 +403,7 @@ class Excel {
       return;
     }
     _availSheet(sheet);
-    int targetRow = _sheetMap[sheet].maxRows;
+    int targetRow = _sheetMap[sheet]!.maxRows;
     insertRowIterables(sheet, row, targetRow);
   }
 
@@ -424,7 +424,7 @@ class Excel {
       return;
     }
     _availSheet(sheet);
-    _sheetMap['$sheet'].insertRowIterables(row, rowIndex,
+    _sheetMap['$sheet']!.insertRowIterables(row, rowIndex,
         startingColumn: startingColumn,
         overwriteMergedCells: overwriteMergedCells);
   }
@@ -458,7 +458,7 @@ class Excel {
     int replaceCount = 0;
     if (!_isContain(_sheetMap[sheet])) return replaceCount;
 
-    _sheetMap['$sheet'].findAndReplace(
+    _sheetMap['$sheet']!.findAndReplace(
       source,
       target,
       first: first,
@@ -493,7 +493,7 @@ class Excel {
   ///If `sheet` does not exist then it will be automatically created.
   ///
   void updateCell(String sheet, CellIndex cellIndex, dynamic value,
-      {CellStyle cellStyle}) {
+      {CellStyle? cellStyle}) {
     if (cellIndex == null) {
       return;
     }
@@ -501,9 +501,9 @@ class Excel {
 
     if (cellStyle != null) {
       _colorChanges = true;
-      _sheetMap[sheet].updateCell(cellIndex, value, cellStyle: cellStyle);
+      _sheetMap[sheet]!.updateCell(cellIndex, value, cellStyle: cellStyle);
     } else {
-      _sheetMap[sheet].updateCell(cellIndex, value);
+      _sheetMap[sheet]!.updateCell(cellIndex, value);
     }
   }
 
@@ -520,7 +520,7 @@ class Excel {
       return;
     }
     _availSheet(sheet);
-    _sheetMap[sheet].merge(start, end, customValue: customValue);
+    _sheetMap[sheet]!.merge(start, end, customValue: customValue);
   }
 
   ///
@@ -528,7 +528,7 @@ class Excel {
   ///
   List<String> getMergedCells(String sheet) {
     return List<String>.from(
-        _isContain(_sheetMap[sheet]) ? _sheetMap[sheet].spannedItems : []);
+        _isContain(_sheetMap[sheet]) ? _sheetMap[sheet]!.spannedItems : []);
   }
 
   ///
@@ -541,7 +541,7 @@ class Excel {
   ///
   void unMerge(String sheet, String unmergeCells) {
     if (_isContain(_sheetMap[sheet])) {
-      _sheetMap[sheet].unMerge(unmergeCells);
+      _sheetMap[sheet]!.unMerge(unmergeCells);
     }
   }
 

@@ -1,15 +1,15 @@
 part of excel;
 
 class Save {
-  Excel _excel;
-  Map<String, ArchiveFile> _archiveFiles;
-  List<CellStyle> _innerCellStyle;
-  Parser parser;
+  late Excel _excel;
+  late Map<String, ArchiveFile> _archiveFiles;
+  late List<CellStyle> _innerCellStyle;
+  late Parser parser;
   Save._(Excel excel, Parser _parser) {
     _excel = excel;
     parser = _parser;
     _archiveFiles = Map<String, ArchiveFile>();
-    _innerCellStyle = List<CellStyle>();
+    _innerCellStyle = [];
   }
 
   List<int> _save() {
@@ -18,7 +18,7 @@ class Save {
     }
     _setSheetElements();
     if (_excel._defaultSheet != null) {
-      _setDefaultSheet(_excel._defaultSheet);
+      _setDefaultSheet(_excel._defaultSheet!);
     }
     _setSharedStrings();
 
